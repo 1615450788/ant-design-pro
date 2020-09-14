@@ -33,47 +33,25 @@ export default defineConfig({
     {
       path: '/user',
       layout: false,
+      component: './user',
       routes: [
         {
+          path: '/user',
+          redirect: '/user/login',
+        },
+        {
+          exact: true,
           name: 'login',
           path: '/user/login',
-          component: './user/login',
+          component: './user/Login',
         },
-      ],
-    },
-    {
-      path: '/welcome',
-      name: 'welcome',
-      icon: 'smile',
-      component: './Welcome',
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      icon: 'crown',
-      access: 'canAdmin',
-      component: './Admin',
-      routes: [
         {
-          path: '/admin/sub-page',
-          name: 'sub-page',
-          icon: 'smile',
-          component: './Welcome',
+          exact: true,
+          name: 'register',
+          path: '/user/register',
+          component: './user/Register',
         },
       ],
-    },
-    {
-      name: 'list.table-list',
-      icon: 'table',
-      path: '/list',
-      component: './ListTableList',
-    },
-    {
-      path: '/',
-      redirect: '/welcome',
-    },
-    {
-      component: './404',
     },
   ],
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
