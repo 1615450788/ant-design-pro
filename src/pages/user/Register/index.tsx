@@ -4,6 +4,7 @@ import { Form, Input, Checkbox, Button, Tabs, AutoComplete } from 'antd';
 import { Link } from 'umi';
 import LoginFrom from '../Login/LoginFrom';
 import { LockTwoTone, MailTwoTone, MobileTwoTone, UserOutlined } from '@ant-design/icons';
+import { Agreement } from './components/Agreement';
 const { Tab, Username, Password, Mobile, Captcha, Submit } = LoginFrom;
 
 const RegistrationForm = () => {
@@ -127,25 +128,7 @@ const RegistrationForm = () => {
         />
       </Form.Item>
 
-      <Form.Item
-        hasFeedback={true}
-        rules={[
-          {
-            type: 'boolean',
-            required: true,
-            validator: (rules, value) => {
-              return value ? Promise.resolve() : Promise.reject('');
-            },
-          },
-        ]}
-        name="agreement"
-        valuePropName="checked"
-        className={styles.center}
-      >
-        <Checkbox>
-          我已阅读并同意 <a href="">《开发者协议》</a>
-        </Checkbox>
-      </Form.Item>
+      <Agreement></Agreement>
       <Form.Item className={styles.center}>
         <Button size="middle" type="primary" htmlType="submit">
           注册
