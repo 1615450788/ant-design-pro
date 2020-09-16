@@ -1,7 +1,4 @@
-import {
- GithubOutlined,
-  WechatOutlined,
-} from '@ant-design/icons';
+import { GithubOutlined, WechatOutlined } from '@ant-design/icons';
 import { Alert, Checkbox, message } from 'antd';
 import React, { useState } from 'react';
 import { Link, useModel, history, History } from 'umi';
@@ -32,7 +29,7 @@ const replaceGoto = () => {
     const { query } = history.location;
     const { redirect } = query as { redirect: string };
     if (!redirect) {
-      history.replace('/');
+      history.replace('/welcome');
       return;
     }
     (history as History).replace(redirect);
@@ -49,21 +46,20 @@ const Login: React.FC<{}> = () => {
     setSubmitting(true);
     try {
       // 登录
-      const msg = await fakeAccountLogin({ ...values, type });
-      if (msg.status === 'ok' && initialState) {
+      const msg = await fakeAccountLogin({ ...values });
+      if (msg.jwt && initialState) {
         message.success('登录成功！');
-        const currentUser = await initialState?.fetchUserInfo();
         setInitialState({
           ...initialState,
-          currentUser,
+          userInfo: msg,
         });
         replaceGoto();
         return;
       }
       // 如果失败去设置用户错误信息
-      setUserLoginState(msg);
+      setUserLoginState({ status: 'ok', type });
     } catch (error) {
-      message.error('登录失败，请重试！');
+      setUserLoginState({ status: 'error', type });
     }
     setSubmitting(false);
   };
@@ -74,11 +70,11 @@ const Login: React.FC<{}> = () => {
     <LoginFrom activeKey={type} onTabChange={setType} onSubmit={handleSubmit}>
       <Tab key="account" tab="密码登录">
         {status === 'error' && loginType === 'account' && !submitting && (
-          <LoginMessage content="账户或密码错误（admin/ant.design）" />
+          <LoginMessage content="账户或密码错误" />
         )}
 
         <Username
-          name="username"
+          name="identifier"
           placeholder="注册 邮箱 或 手机号"
           rules={[
             {
@@ -103,7 +99,7 @@ const Login: React.FC<{}> = () => {
           <LoginMessage content="验证码错误" />
         )}
         <Mobile
-          name="mobile"
+          name="identifier"
           placeholder="手机号"
           rules={[
             {
@@ -134,13 +130,15 @@ const Login: React.FC<{}> = () => {
         <Checkbox checked={autoLogin} onChange={(e) => setAutoLogin(e.target.checked)}>
           30天内免登录
         </Checkbox>
-        <a
+        <Link
+          className={styles.register}
           style={{
             float: 'right',
           }}
+          to="/user/forgetPassword"
         >
           忘记密码
-        </a>
+        </Link>
       </div>
       <Submit loading={submitting}>登录</Submit>
       <div className={styles.other}>

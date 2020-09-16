@@ -31,6 +31,12 @@ export default defineConfig({
   // umi routes: https://umijs.org/docs/routing
   routes: [
     {
+      path: '/welcome',
+      name: 'welcome',
+      icon: 'smile',
+      component: './Welcome',
+    },
+    {
       path: '/user',
       layout: false,
       component: './user',
@@ -50,6 +56,18 @@ export default defineConfig({
           name: 'register',
           path: '/user/register',
           component: './user/Register',
+        },
+        {
+          exact: true,
+          name: 'forgetPassword',
+          path: '/user/forgetPassword',
+          component: './user/ForgetPassword',
+        },
+        {
+          exact: true,
+          name: 'resetPassword',
+          path: '/user/resetPassword/:code',
+          component: './user/ResetPassword',
         },
       ],
     },

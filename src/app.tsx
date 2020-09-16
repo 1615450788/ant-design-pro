@@ -5,34 +5,14 @@ import { history, RequestConfig } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
 import { ResponseError } from 'umi-request';
-import { queryCurrent } from './services/user';
 import defaultSettings from '../config/defaultSettings';
 
 export async function getInitialState(): Promise<{
   settings?: LayoutSettings;
-  currentUser?: API.CurrentUser;
-  fetchUserInfo: () => Promise<API.CurrentUser | undefined>;
+  userInfo?: API.UserInfo;
 }> {
-  const fetchUserInfo = async () => {
-    try {
-      // const currentUser = await queryCurrent();
-      // return currentUser;
-    } catch (error) {
-      history.push('/user/login');
-    }
-    return undefined;
-  };
-  // 如果是登录页面，不执行
-  if (history.location.pathname !== '/user/login') {
-    const currentUser = await fetchUserInfo();
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: defaultSettings,
-    };
-  }
   return {
-    fetchUserInfo,
+    userInfo: undefined,
     settings: defaultSettings,
   };
 }
@@ -40,22 +20,22 @@ export async function getInitialState(): Promise<{
 export const layout = ({
   initialState,
 }: {
-  initialState: { settings?: LayoutSettings; currentUser?: API.CurrentUser };
+  initialState: { settings?: LayoutSettings; userInfo?: API.UserInfo };
 }): BasicLayoutProps => {
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
     footerRender: () => <Footer />,
     onPageChange: () => {
-      const { currentUser } = initialState;
+      const { userInfo } = initialState;
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (location.pathname.includes('register')) {
+      if (location.pathname.includes('user')) {
         return;
       }
-      // if (!currentUser?.userid && location.pathname !== '/user/login') {
-      //   history.push('/user/login');
-      // }
+      if (!userInfo?.jwt) {
+        history.push('/user/login');
+      }
     },
     menuHeaderRender: undefined,
     ...initialState?.settings,
@@ -86,15 +66,15 @@ const codeMessage = {
  */
 const errorHandler = (error: ResponseError) => {
   const { response } = error;
-  if (response && response.status) {
-    const errorText = codeMessage[response.status] || response.statusText;
-    const { status, url } = response;
+  // if (response && response.status) {
+  //   const errorText = codeMessage[response.status] || response.statusText;
+  //   const { status, url } = response;
 
-    notification.error({
-      message: `请求错误 ${status}: ${url}`,
-      description: errorText,
-    });
-  }
+  //   notification.error({
+  //     message: `请求错误 ${status}: ${url}`,
+  //     description: errorText,
+  //   });
+  // }
 
   if (!response) {
     notification.error({

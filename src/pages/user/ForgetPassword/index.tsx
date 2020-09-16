@@ -1,52 +1,30 @@
 import styles from './index.less';
 import React, { useState } from 'react';
-import { pick } from 'lodash';
 import { Form, Input, Checkbox, Button, Tabs, AutoComplete, message } from 'antd';
-import { Link, history, History, useModel } from 'umi';
+import { Link, useModel, history } from 'umi';
 import LoginFrom from '../Login/LoginFrom';
 import { LockTwoTone, MailTwoTone, MobileTwoTone, UserOutlined } from '@ant-design/icons';
-import { Agreement } from './components/Agreement';
-import { AccountRegister, RegisterParamsType } from '@/services/register';
+import { AccountForgetPassword } from '@/services/forgetPassword';
 const { Tab, Username, Password, Mobile, Captcha, Submit } = LoginFrom;
-
-const replaceGoto = () => {
-  setTimeout(() => {
-    const { query } = history.location;
-    const { redirect } = query as { redirect: string };
-    if (!redirect) {
-      history.replace('/welcome');
-      return;
-    }
-    (history as History).replace(redirect);
-  }, 10);
-};
 
 const RegistrationForm = () => {
   const [form] = Form.useForm();
-  const [submitting, setSubmitting] = useState(false);
   const [options, setOptions] = useState<any[]>([]);
-  const { initialState, setInitialState } = useModel('@@initialState');
+  const [submitting, setSubmitting] = useState(false);
 
-  const onFinish = async (values: RegisterParamsType) => {
+  const onFinish = async (values: any) => {
     setSubmitting(true);
     try {
       // 登录
-      const msg = await AccountRegister({
-        ...pick(values, ['password', 'username']),
-        email: `${values.username}${values.username?.includes('@') ? '' : '@shixiang.com'}`,
-      });
-      if (msg.jwt) {
-        message.success('注册成功！');
-        setInitialState({
-          ...initialState,
-          userInfo: msg,
-        });
-        replaceGoto();
+      const msg = await AccountForgetPassword(values);
+      if (msg.ok) {
+        message.info('验证邮件已发送！');
+        history.push('/user/resetPassword');
         return;
       }
       // 如果失败去设置用户错误信息
     } catch (error) {
-      message.error('注册失败！');
+      message.error('验证邮件发送失败，请确认邮箱是否填写正确！');
     }
     setSubmitting(false);
   };
@@ -75,7 +53,7 @@ const RegistrationForm = () => {
         <Tabs.TabPane key="mail" tab="邮箱注册">
           <Form.Item
             hasFeedback={true}
-            name="username"
+            name="email"
             rules={[
               {
                 type: 'email',
@@ -95,7 +73,7 @@ const RegistrationForm = () => {
         </Tabs.TabPane>
         <Tabs.TabPane key="mobile" tab="手机注册">
           <Form.Item
-            name="username"
+            name="phone"
             rules={[
               {
                 message: '请输入正确的手机号码',
@@ -126,48 +104,10 @@ const RegistrationForm = () => {
           />
         </Tabs.TabPane>
       </Tabs>
-      <Form.Item
-        name="password"
-        rules={[
-          {
-            required: true,
-            message: '请输入密码',
-          },
-        ]}
-        hasFeedback
-      >
-        <Input.Password prefix={<LockTwoTone className={styles.prefixIcon} />} placeholder="密码" />
-      </Form.Item>
 
-      <Form.Item
-        name="confirm"
-        dependencies={['password']}
-        hasFeedback
-        rules={[
-          {
-            required: true,
-            message: '请输入确认密码',
-          },
-          ({ getFieldValue }) => ({
-            validator(rule, value) {
-              if (!value || getFieldValue('password') === value) {
-                return Promise.resolve();
-              }
-              return Promise.reject('两次密码不一致');
-            },
-          }),
-        ]}
-      >
-        <Input.Password
-          prefix={<LockTwoTone className={styles.prefixIcon} />}
-          placeholder="再次确认密码"
-        />
-      </Form.Item>
-
-      <Agreement></Agreement>
       <Form.Item className={styles.center}>
         <Button loading={submitting} size="middle" type="primary" htmlType="submit">
-          注册
+          发送验证码
         </Button>
         <Link to="/user/login">
           <Button size="middle" type="link">

@@ -12,7 +12,7 @@ const Login: React.FC<{}> = (props) => {
           <div className={styles.header}>
             <Link to="/">
               <img alt="logo" className={styles.logo} src={logo} />
-              <span className={styles.title}>平台名称</span>
+              <span className={styles.title}>视享开发者中心</span>
             </Link>
           </div>
           <div className={styles.desc}>这里是平台简介信息</div>
